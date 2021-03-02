@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+var xazabcore = require('../lib/cli/xazabcore');
+xazabcore();

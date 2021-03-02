@@ -9,17 +9,17 @@ var log = index.log;
 log.debug = function() {};
 
 var chai = require('chai');
-var dashcore = require('@dashevo/dashcore-lib');
+var xazabcore = require('@xazabevo/xazabcore-lib');
 var rimraf = require('rimraf');
 var node;
 
 var should = chai.should();
 
-var DashdRPC = require('@dashevo/dashd-rpc');
+var XazabdRPC = require('@xazabevo/xazabd-rpc');
 var index = require('..');
-var Transaction = dashcore.Transaction;
-var DashcoreNode = index.Node;
-var DashService = index.services.Dash;
+var Transaction = xazabcore.Transaction;
+var XazabcoreNode = index.Node;
+var XazabService = index.services.Xazab;
 var testWIF = 'cSdkPxkAjA4HDr5VHgsebAPDEh9Gyub4HK8UJr2DFGGqKKy4K5sG';
 var testKey;
 var client;
@@ -36,7 +36,7 @@ describe('Node Functionality', function() {
 
     var datadir = __dirname + '/data';
 
-    testKey = dashcore.PrivateKey(testWIF);
+    testKey = xazabcore.PrivateKey(testWIF);
 
     rimraf(datadir + '/regtest', function(err) {
 
@@ -48,21 +48,21 @@ describe('Node Functionality', function() {
         network: 'regtest',
         services: [
           {
-            name: 'dashd',
-            module: DashService,
+            name: 'xazabd',
+            module: XazabService,
             config: {
               spawn: {
                 datadir: datadir,
-                exec: path.resolve(__dirname, process.env.HOME, './.dashcore/data/dashd')
+                exec: path.resolve(__dirname, process.env.HOME, './.xazabcore/data/xazabd')
               }
             }
           }
         ]
       };
 
-      node = new DashcoreNode(configuration);
+      node = new XazabcoreNode(configuration);
 
-      regtest = dashcore.Networks.get('regtest');
+      regtest = xazabcore.Networks.get('regtest');
       should.exist(regtest);
 
       node.on('error', function(err) {
@@ -74,23 +74,23 @@ describe('Node Functionality', function() {
           return done(err);
         }
 
-        client = new DashdRPC({
+        client = new XazabdRPC({
           protocol: 'http',
           host: '127.0.0.1',
           port: 30331,
-          user: 'dash',
+          user: 'xazab',
           pass: 'local321',
           rejectUnauthorized: false
         });
 
         var syncedHandler = function() {
-          if (node.services.dashd.height === 150) {
-            node.services.dashd.removeListener('synced', syncedHandler);
+          if (node.services.xazabd.height === 150) {
+            node.services.xazabd.removeListener('synced', syncedHandler);
             done();
           }
         };
 
-        node.services.dashd.on('synced', syncedHandler);
+        node.services.xazabd.on('synced', syncedHandler);
 
         client.generate(150, function(err) {
           if (err) {
@@ -119,9 +119,9 @@ describe('Node Functionality', function() {
       var bus = node.openBus();
       var blockExpected;
       var blockReceived;
-      bus.subscribe('dashd/hashblock');
-      bus.on('dashd/hashblock', function(data) {
-        bus.unsubscribe('dashd/hashblock');
+      bus.subscribe('xazabd/hashblock');
+      bus.on('xazabd/hashblock', function(data) {
+        bus.unsubscribe('xazabd/hashblock');
         if (blockExpected) {
           data.should.be.equal(blockExpected);
           done();
@@ -149,8 +149,8 @@ describe('Node Functionality', function() {
     before(function(done) {
       this.timeout(300000);
       address = testKey.toAddress(regtest).toString();
-      var startHeight = node.services.dashd.height;
-      node.services.dashd.on('tip', function(height) {
+      var startHeight = node.services.xazabd.height;
+      node.services.xazabd.on('tip', function(height) {
         if (height === startHeight + 3) {
           done();
         }
@@ -248,26 +248,26 @@ describe('Node Functionality', function() {
         /* jshint maxstatements: 50 */
 
         // Finished once all blocks have been mined
-        var startHeight = node.services.dashd.height;
-        node.services.dashd.on('tip', function(height) {
+        var startHeight = node.services.xazabd.height;
+        node.services.xazabd.on('tip', function(height) {
           if (height === startHeight + 5) {
             done();
           }
         });
 
-        testKey2 = dashcore.PrivateKey.fromWIF('cNfF4jXiLHQnFRsxaJyr2YSGcmtNYvxQYSakNhuDGxpkSzAwn95x');
+        testKey2 = xazabcore.PrivateKey.fromWIF('cNfF4jXiLHQnFRsxaJyr2YSGcmtNYvxQYSakNhuDGxpkSzAwn95x');
         address2 = testKey2.toAddress(regtest).toString();
 
-        testKey3 = dashcore.PrivateKey.fromWIF('cVTYQbaFNetiZcvxzXcVMin89uMLC43pEBMy2etgZHbPPxH5obYt');
+        testKey3 = xazabcore.PrivateKey.fromWIF('cVTYQbaFNetiZcvxzXcVMin89uMLC43pEBMy2etgZHbPPxH5obYt');
         address3 = testKey3.toAddress(regtest).toString();
 
-        testKey4 = dashcore.PrivateKey.fromWIF('cPNQmfE31H2oCUFqaHpfSqjDibkt7XoT2vydLJLDHNTvcddCesGw');
+        testKey4 = xazabcore.PrivateKey.fromWIF('cPNQmfE31H2oCUFqaHpfSqjDibkt7XoT2vydLJLDHNTvcddCesGw');
         address4 = testKey4.toAddress(regtest).toString();
 
-        testKey5 = dashcore.PrivateKey.fromWIF('cVrzm9gCmnzwEVMGeCxY6xLVPdG3XWW97kwkFH3H3v722nb99QBF');
+        testKey5 = xazabcore.PrivateKey.fromWIF('cVrzm9gCmnzwEVMGeCxY6xLVPdG3XWW97kwkFH3H3v722nb99QBF');
         address5 = testKey5.toAddress(regtest).toString();
 
-        testKey6 = dashcore.PrivateKey.fromWIF('cPfMesNR2gsQEK69a6xe7qE44CZEZavgMUak5hQ74XDgsRmmGBYF');
+        testKey6 = xazabcore.PrivateKey.fromWIF('cPfMesNR2gsQEK69a6xe7qE44CZEZavgMUak5hQ74XDgsRmmGBYF');
         address6 = testKey6.toAddress(regtest).toString();
 
         var tx = new Transaction();
@@ -660,14 +660,14 @@ describe('Node Functionality', function() {
       });
 
       it('will update the mempool index after new tx', function(done) {
-        var memAddress = dashcore.PrivateKey().toAddress(node.network).toString();
+        var memAddress = xazabcore.PrivateKey().toAddress(node.network).toString();
         var tx = new Transaction();
         tx.from(unspentOutput);
         tx.to(memAddress, unspentOutput.satoshis - 2000);
         tx.fee(2000);
         tx.sign(testKey);
 
-        node.services.dashd.sendTransaction(tx.serialize(), function(err, hash) {
+        node.services.xazabd.sendTransaction(tx.serialize(), function(err, hash) {
           node.getAddressTxids(memAddress, {}, function(err, txids) {
             if (err) {
               return done(err);
